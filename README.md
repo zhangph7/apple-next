@@ -1,54 +1,52 @@
-English | [简体中文](/README.zh-CN.md)
+# admin-next
 
-# blog-admin-next
+一个博客管理系统，使用 Vue 3、Vite、TS、Pinia、Axios、naive-ui、ECharts、md-editor-v3 等技术开发。
 
-A blog management system developed using Vue 3, Vite, TS, Pinia, Axios, naive-ui, ECharts, md-editor-v3 and other technologies.
+## 功能特性
 
-## Features
+- 使用动态路由实现权限控制，支持为用户赋予按钮级权限；
+- 内置白色主题和暗黑主题，支持绑定切换；
+- 使用 Markdown 编辑器编写文章；
+- 使用 Vitest 进行单元测试；
+- 使用 pnpm 进行包管理；
+- 使用 Docker 部署。
 
-- Implements permission control using dynamic routing, supporting button-level permissions for users.
-- Built-in light and dark themes, supporting binding and switching.
-- Articles can be written using a Markdown editor.
-- Unit testing is performed using Vitest.
-- Package management is handled using pnpm.
-- Deployment is done using Docker.
+## 预览图
 
-## Preview
+### 登录页
 
-### Login Page
+![登录页](./docs/login.png)
 
-![Login Page](./docs/login.png)
+### 权限管理页
 
-### Permission Management Page
+![权限管理页](./docs/permission.png)
 
-![Permission Management Page](./docs/permission.png)
+## 快速开始
 
-## Quick Start
-
-### Clone the Project
+### 克隆项目
 
 ```bash
 git clone https://github.com/wansongtao/blog-admin-next.git
 ```
 
-### Install Dependencies
+### 安装依赖
 
 ```bash
 pnpm install
 ```
 
-### Start the Project
+### 启动项目
 
 ```bash
 pnpm dev
 ```
 
-### Build the Project
+### 打包项目
 
 ```bash
 pnpm build
 ```
 
-## License
+## 许可证
 
 [MIT](/LICENSE)

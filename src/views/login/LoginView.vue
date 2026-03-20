@@ -29,34 +29,39 @@ const rules: IRule<ILoginParams> = {
     }
   ],
   captcha: [
+    // {
+    //   required: true,
+    //   validator: (_rule, value: string) => {
+    //     if (!value) {
+    //       return new Error('请输入验证码')
+    //     }
+
+    //     const regexp = /^[a-zA-Z0-9]{4}$/
+    //     if (!regexp.test(value)) {
+    //       return new Error('验证码格式错误')
+    //     }
+
+    //     return true
+    //   },
+    //   trigger: ['input', 'blur']
+    // }
     {
       required: true,
-      validator: (_rule, value: string) => {
-        if (!value) {
-          return new Error('请输入验证码')
-        }
-
-        const regexp = /^[a-zA-Z0-9]{4}$/
-        if (!regexp.test(value)) {
-          return new Error('验证码格式错误')
-        }
-
-        return true
-      },
-      trigger: ['input', 'blur']
+      message: '请完成滑动验证',
+      trigger: ['change', 'blur']
     }
   ]
 }
 
 const { formRef, validateForm } = useFormValidate()
 const formData = ref<ILoginParams>({
-  userName: '',
-  password: '',
+  userName: 'sAdmin',
+  password: 'w.1admin',
   captcha: ''
 })
 
 const disabled = computed(() => {
-  return !formData.value.userName || !formData.value.password || !formData.value.captcha
+  return !formData.value.userName || !formData.value.password
 })
 
 const captchaRef = useTemplateRef('captchaRef')
@@ -64,24 +69,63 @@ const loading = ref(false)
 const router = useRouter()
 
 const onLogin = async () => {
+  // const isValid = await validateForm()
+  // if (!isValid) return
+  // 弹出滑动验证码
+  // captchaRef.value?.open()
+
+  // loading.value = true
+  // const userStore = useUserStore()
+  // const isSuccess = await userStore.login(formData.value)
+  // loading.value = false
+
+  // if (!isSuccess) {
+  //   captchaRef.value?.onRefreshCaptcha()
+  //   return
+  // }
+
+  // const redirect = router.currentRoute.value.query.redirect as string
+  // // 如果有重定向地址，则跳转到该地址，否则跳转到首页
+  // router.push(redirect ? decodeURIComponent(redirect) : '/')
+  // 手动触发用户名和密码的校验，跳过 captcha
+  const errors = await formRef.value
+    ?.validate(
+      (errors) => !errors,
+      (rule) => rule.key !== 'captcha' // 如果你的 rules 设置了 key
+    )
+    .catch((err) => err)
+
+  // 简单的做法：直接在 validateForm 之前给 captcha 赋个假值，或者只对前两项验证
+  if (!formData.value.userName || !formData.value.password) {
+    // 这里可以手动触发一下 naive-ui 的反馈
+    return
+  }
+
+  // 弹出滑动验证码
+  captchaRef.value?.open()
+}
+const handleCaptchaSuccess = async (x: number) => {
+  formData.value.captcha = x.toString()
+
+  // 确保数据更新后，再进行整体表单校验（这样 rules 里的 captcha 校验就能通过了）
   const isValid = await validateForm()
   if (!isValid) return
-
+  // 执行真正的登录请求
   loading.value = true
   const userStore = useUserStore()
   const isSuccess = await userStore.login(formData.value)
   loading.value = false
 
   if (!isSuccess) {
+    formData.value.captcha = '' // 清除错误的验证码
     captchaRef.value?.onRefreshCaptcha()
-    return
+    // 如果失败了，可以选择自动再次弹出或者让用户重新点击
+    captchaRef.value?.open()
+  } else {
+    const redirect = router.currentRoute.value.query.redirect as string
+    router.push(redirect ? decodeURIComponent(redirect) : '/')
   }
-
-  const redirect = router.currentRoute.value.query.redirect as string
-  // 如果有重定向地址，则跳转到该地址，否则跳转到首页
-  router.push(redirect ? decodeURIComponent(redirect) : '/')
 }
-
 const title = import.meta.env.VITE_TITLE
 </script>
 
@@ -121,7 +165,7 @@ const title = import.meta.env.VITE_TITLE
                 </template>
               </n-input>
             </n-form-item>
-            <n-form-item path="captcha">
+            <!-- <n-form-item path="captcha">
               <n-row :gutter="20">
                 <n-col :span="16">
                   <n-input
@@ -134,14 +178,13 @@ const title = import.meta.env.VITE_TITLE
                     </template>
                   </n-input>
                 </n-col>
-                <n-col :span="8">
-                  <img-captcha ref="captchaRef" />
-                </n-col>
+                <n-col :span="8"> </n-col>
               </n-row>
-            </n-form-item>
+            </n-form-item> -->
             <n-button style="margin-top: 20px" type="info" block :loading :disabled @click="onLogin"
               >登录</n-button
             >
+            <img-captcha ref="captchaRef" @success="handleCaptchaSuccess" />
           </n-form>
         </n-config-provider>
       </div>
